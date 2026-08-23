@@ -10,6 +10,10 @@ pub enum AppError {
     InvalidCredentials,
     #[error("Asset does not exist")]
     AssetDoesNotExist,
+    #[error("Holding does not exist")]
+    HoldingDoesNotExist,
+    #[error("Quantity must be greater than zero")]
+    InvalidQuantity,
     #[error("User does not exist")]
     UserDoesNotExist,
     #[error("This username is already registered")]
@@ -34,9 +38,13 @@ impl IntoResponse for AppError {
         };
 
         let status = match self {
-            Self::UsernameTaken | Self::MissingAuthorization => StatusCode::BAD_REQUEST,
+            Self::UsernameTaken | Self::MissingAuthorization | Self::InvalidQuantity => {
+                StatusCode::BAD_REQUEST
+            }
             Self::InvalidCredentials => StatusCode::UNAUTHORIZED,
-            Self::AssetDoesNotExist | Self::UserDoesNotExist => StatusCode::NOT_FOUND,
+            Self::AssetDoesNotExist | Self::HoldingDoesNotExist | Self::UserDoesNotExist => {
+                StatusCode::NOT_FOUND
+            }
             Self::Database(_) | Self::Template(_) | Self::Jwt(_) => {
                 StatusCode::INTERNAL_SERVER_ERROR
             }

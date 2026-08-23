@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carteira de Investimentos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-950 min-h-screen text-white" style="font-family: 'Space Mono', monospace;">
+    <div class="max-w-4xl mx-auto px-4 py-10">
+        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+            <div>
+                <p class="text-cyan-400/80 text-sm">Carteira de investimentos</p>
+                <h1 class="text-2xl font-bold">Olá, {{ username }}</h1>
+            </div>
+            <form method="POST" action="/logout">
+                <button type="submit" class="px-4 py-2 border border-white/15 rounded-xl text-white/80 hover:border-cyan-400/40 hover:text-cyan-300 transition-all">
+                    Sair
+                </button>
+            </form>
+        </header>
+
+        {% if error.is_empty() %}
+        {% else %}
+        <p class="mb-6 px-4 py-3 rounded-xl border border-rose-400/30 bg-rose-500/10 text-rose-200">
+            {{ error }}
+        </p>
+        {% endif %}
+
+        <section class="mb-8 p-6 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_30px_rgba(34,211,238,0.08)]">
+            <p class="text-white/50 text-sm">Valor total da carteira</p>
+            <p class="text-3xl text-cyan-400 font-bold mt-1">{{ total }}</p>
+        </section>
+
+        <section class="mb-8 p-6 rounded-2xl bg-white/5 border border-white/10">
+            <h2 class="text-lg font-bold mb-4">Adicionar ativo</h2>
+            {% if assets.is_empty() %}
+            <p class="text-white/60">
+                Nenhum ativo no catálogo. Cadastre um pela API com o header
+                <code class="text-cyan-300">Authorization: im-the-admin</code>.
+            </p>
+            {% else %}
+            <form method="POST" action="/holdings" class="grid gap-4 sm:grid-cols-[1fr_8rem_auto]">
+                <select
+                    name="asset_id"
+                    required
+                    class="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cyan-400/50"
+                >
+                    {% for asset in assets %}
+                    <option value="{{ asset.id }}" class="bg-slate-900">{{ asset.label }}</option>
+                    {% endfor %}
+                </select>
+                <input
+                    type="number"
+                    name="quantity"
+                    min="0.0001"
+                    step="any"
+                    placeholder="qtd"
+                    required
+                    class="px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-cyan-400/50"
+                >
+                <button type="submit" class="px-4 py-3 bg-cyan-500/20 border border-cyan-400/30 rounded-xl text-cyan-400 hover:bg-cyan-500/30 transition-all">
+                    Adicionar
+                </button>
+            </form>
+            {% endif %}
+        </section>
+
+        <section class="p-6 rounded-2xl bg-white/5 border border-white/10 overflow-x-auto">
+            <h2 class="text-lg font-bold mb-4">Posições</h2>
+            {% if holdings.is_empty() %}
+            <p class="text-white/60">Sua carteira está vazia. Adicione um ativo acima.</p>
+            {% else %}
+            <table class="w-full text-left text-sm">
+                <thead class="text-white/50 border-b border-white/10">
+                    <tr>
+                        <th class="py-3 pr-4 font-normal">Ativo</th>
+                        <th class="py-3 pr-4 font-normal">Qtd</th>
+                        <th class="py-3 pr-4 font-normal">Preço</th>
+                        <th class="py-3 pr-4 font-normal">Subtotal</th>
+                        <th class="py-3 font-normal">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for holding in holdings %}
+                    <tr class="border-b border-white/5">
+                        <td class="py-3 pr-4">{{ holding.name }}</td>
+                        <td class="py-3 pr-4">{{ holding.quantity }}</td>
+                        <td class="py-3 pr-4">{{ holding.unit_value }}</td>
+                        <td class="py-3 pr-4 text-cyan-300">{{ holding.subtotal }}</td>
+                        <td class="py-3">
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <form method="POST" action="/holdings/{{ holding.id }}/update" class="flex gap-2">
+                                    <input
+                                        type="number"
+                                        name="quantity"
+                                        min="0.0001"
+                                        step="any"
+                                        value="{{ holding.quantity }}"
+                                        required
+                                        class="w-24 px-2 py-1 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-cyan-400/50"
+                                    >
+                                    <button type="submit" class="px-3 py-1 border border-cyan-400/30 rounded-lg text-cyan-400 hover:bg-cyan-500/20">
+                                        Atualizar
+                                    </button>
+                                </form>
+                                <form method="POST" action="/holdings/{{ holding.id }}/delete">
+                                    <button type="submit" class="px-3 py-1 border border-rose-400/30 rounded-lg text-rose-300 hover:bg-rose-500/20">
+                                        Remover
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
