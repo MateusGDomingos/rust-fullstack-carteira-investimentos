@@ -60,15 +60,3 @@ Como testar
 Testes automatizados (usam um banco de testes via sqlx::test, que precisa do DATABASE_URL configurado):
 
 cargo test
-
-Cobrem o CRUD de ativos (src/routes/api.rs) e a lógica da carteira: criar posição, somar quantidade ao adicionar o mesmo ativo de novo, calcular subtotal, atualizar quantidade, remover posição e garantir que um usuário não mexe na carteira de outro (src/repository.rs).
-
-Teste manual: acesse http://localhost:3000, faça login (cria o usuário automaticamente), adicione um ativo do catálogo com uma quantidade, confira o subtotal e o valor total na tela, teste atualizar a quantidade e remover a posição.
-
-O que você aprendeu durante o desafio
-
-    Como o Axum combina rotas de API (`/api`) e páginas HTML no mesmo `Router`.
-    Como o extractors (`User`, `Repository`, `Form`, `CookieJar`) carregam autenticação e persistência em cada request.
-    Como modelar um relacionamento N:N (usuário × ativo) com quantidade e calcular o valor da carteira no servidor.
-    Como proteger operações para que um usuário só altere as próprias posições (`user_id` nas queries).
-    Como testar persistência com `sqlx::test`, que sobe um banco isolado a partir das migrations.
